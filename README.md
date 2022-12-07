@@ -8,3 +8,4 @@
 * [Day 4](./src/main/java/net/alexmiranda/adventofcode2022/Day4.java)
 * [Day 5](./src/main/java/net/alexmiranda/adventofcode2022/Day5.java)
 * [Day 6](./src/main/java/net/alexmiranda/adventofcode2022/Day6.java)
+* [Day 7](./src/main/java/net/alexmiranda/adventofcode2022/Day7.java)
