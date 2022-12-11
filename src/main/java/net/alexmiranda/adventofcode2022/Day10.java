@@ -1,6 +1,8 @@
 package net.alexmiranda.adventofcode2022;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Scanner;
 import java.util.function.IntConsumer;
 
@@ -16,6 +18,8 @@ public class Day10 {
 
         ClockCircuit(Reader instructions) {
             scanner = new Scanner(instructions);
+            listener = (i) -> {
+            };
         }
 
         void ready() {
@@ -31,7 +35,8 @@ public class Day10 {
             tick();
         }
 
-        void tick() {
+        private void tick() {
+            draw();
             listener.accept(++cycle);
             switch (instruction) {
                 case "addx": {
@@ -49,6 +54,19 @@ public class Day10 {
                 }
             }
             tick();
+        }
+
+        private void draw() {
+            var row = cycle / 40;
+            var pos = cycle % 40;
+            screen[row][pos] = Math.abs(x - pos) <= 1 ? '#' : '.';
+        }
+
+        void print(Writer w) throws IOException {
+            for (int i = 0; i < screen.length; i++) {
+                w.write(screen[i]);
+                w.append('\n');
+            }
         }
 
         int signalStrength() {

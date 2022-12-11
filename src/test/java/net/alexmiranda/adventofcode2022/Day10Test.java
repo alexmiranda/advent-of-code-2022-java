@@ -2,8 +2,10 @@ package net.alexmiranda.adventofcode2022;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,42 @@ public class Day10Test {
     @Test
     public void testPuzzleInputPart1() {
         checkPart1(input(), 13820);
+    }
+
+    @Test
+    public void testExamplePart2() throws IOException {
+        var expectedOutput = """
+                ##..##..##..##..##..##..##..##..##..##..
+                ###...###...###...###...###...###...###.
+                ####....####....####....####....####....
+                #####.....#####.....#####.....#####.....
+                ######......######......######......####
+                #######.......#######.......#######.....
+                """;
+        try (var clockCircuit = new Day10.ClockCircuit(example())) {
+            var w = new StringWriter();
+            clockCircuit.ready();
+            clockCircuit.print(w);
+            assertEquals(expectedOutput, w.toString());
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        var expectedOutput = """
+                ####.#..#..##..###..#..#..##..###..#..#.
+                ...#.#.#..#..#.#..#.#.#..#..#.#..#.#.#..
+                ..#..##...#....#..#.##...#....#..#.##...
+                .#...#.#..#.##.###..#.#..#.##.###..#.#..
+                #....#.#..#..#.#.#..#.#..#..#.#.#..#.#..
+                ####.#..#..###.#..#.#..#..###.#..#.#..#.
+                """;
+        try (var clockCircuit = new Day10.ClockCircuit(input())) {
+            var w = new StringWriter();
+            clockCircuit.ready();
+            clockCircuit.print(w);
+            assertEquals(expectedOutput, w.toString());
+        }
     }
 
     public void checkPart1(Reader reader, int expectedResult) {
