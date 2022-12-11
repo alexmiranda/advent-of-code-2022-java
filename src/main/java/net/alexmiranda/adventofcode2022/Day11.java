@@ -3,6 +3,7 @@ package net.alexmiranda.adventofcode2022;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Queue;
@@ -15,15 +16,18 @@ public class Day11 {
 
     static class KeepAway {
         private final Monkey[] troop;
+        private final int reliefFactor, productOfDivisors;
 
-        KeepAway(Reader reader) throws IOException {
+        KeepAway(Reader reader, int reliefFactor) throws IOException {
             var monkeys = new ArrayList<Monkey>(7);
+            var productOfDivisors = 1;
             try (var br = new BufferedReader(reader)) {
                 String line = null;
                 Monkey monkey = null;
                 while ((line = br.readLine()) != null) {
                     if (line.isEmpty()) {
                         monkeys.add(monkey);
+                        productOfDivisors *= monkey.testDivisor;
                         continue;
                     }
 
@@ -44,6 +48,8 @@ public class Day11 {
                 }
             }
             this.troop = monkeys.toArray(new Monkey[monkeys.size()]);
+            this.reliefFactor = reliefFactor;
+            this.productOfDivisors = productOfDivisors;
         }
 
         private void parseStartingItems(String line, Monkey monkey) {
@@ -78,13 +84,13 @@ public class Day11 {
         void play(int n) {
             while (n > 0) {
                 for (var monkey : troop) {
-                    monkey.inspect(troop);
+                    monkey.inspect(troop, reliefFactor, productOfDivisors);
                 }
                 n--;
             }
         }
 
-        int monkeyBusiness() {
+        BigInteger monkeyBusiness() {
             int top1 = 0, top2 = 0;
             for (var monkey : troop) {
                 if (monkey.inspectedItems >= top1) {
@@ -94,7 +100,7 @@ public class Day11 {
                     top2 = monkey.inspectedItems;
                 }
             }
-            return top1 * top2;
+            return BigInteger.valueOf(top1).multiply(BigInteger.valueOf(top2));
         }
     }
 
@@ -110,11 +116,12 @@ public class Day11 {
             items.add(item);
         }
 
-        void inspect(Monkey[] troop) {
+        void inspect(Monkey[] troop, int reliefFactor, int productOfDivisors) {
             while (!items.isEmpty()) {
                 this.inspectedItems++;
                 var worryLevel = items.poll();
-                worryLevel = operation.applyAsInt(worryLevel) / 3;
+                worryLevel = operation.applyAsInt(worryLevel) / reliefFactor;
+                worryLevel %= productOfDivisors;
                 if (worryLevel % testDivisor == 0) {
                     troop[whenTrue].take(worryLevel);
                 } else {
@@ -167,6 +174,11 @@ public class Day11 {
 
             var a = operands.pop();
             var b = operands.pop();
+            // return switch (operator) {
+            // case "+" -> Math.addExact(a, b);
+            // case "*" -> Math.multiplyExact(a, b);
+            // default -> throw new RuntimeException("This should never happen...");
+            // };
             return switch (operator) {
                 case "+" -> a + b;
                 case "*" -> a * b;

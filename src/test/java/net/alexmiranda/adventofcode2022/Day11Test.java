@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class Day11Test {
     private static final String INPUT = "/2022/Day/11/input";
@@ -45,18 +48,43 @@ public class Day11Test {
     @Test
     public void testExamplePart1() throws IOException {
         try (var reader = new StringReader(example)) {
-            var game = new Day11.KeepAway(reader);
+            var game = new Day11.KeepAway(reader, 3);
             game.play(20);
-            assertEquals(10605, game.monkeyBusiness());
+            assertEquals(BigInteger.valueOf(10605), game.monkeyBusiness());
         }
     }
 
     @Test
     public void testPuzzleInputPart1() throws IOException {
         try (var reader = new InputStreamReader(Day11.class.getResourceAsStream(INPUT))) {
-            var game = new Day11.KeepAway(reader);
+            var game = new Day11.KeepAway(reader, 3);
             game.play(20);
-            assertEquals(101436, game.monkeyBusiness());
+            assertEquals(BigInteger.valueOf(101436), game.monkeyBusiness());
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(textBlock = """
+                1, '24'
+                20, '10197'
+                1000, '28440885'
+                2000, '114468597'
+                10000, '2876069637'
+            """)
+    public void testExamplePart2(int rounds, String result) throws IOException {
+        try (var reader = new StringReader(example)) {
+            var game = new Day11.KeepAway(reader, 1);
+            game.play(rounds);
+            assertEquals(new BigInteger(result), game.monkeyBusiness());
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = new InputStreamReader(Day11.class.getResourceAsStream(INPUT))) {
+            var game = new Day11.KeepAway(reader, 1);
+            game.play(10_000);
+            assertEquals(new BigInteger("29396129184"), game.monkeyBusiness());
         }
     }
 }
