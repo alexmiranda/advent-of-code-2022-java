@@ -27,4 +27,16 @@ public class Day12Test {
         var heightmap = Day12.readInputFile();
         assertEquals(484, Day12.shortestDistance(heightmap));
     }
+
+    @Test
+    public void testExamplePart2() {
+        var heightmap = Day12.fromString(EXAMPLE);
+        assertEquals(29, Day12.shortestDistance(heightmap, 'a').getAsInt());
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws URISyntaxException, IOException {
+        var heightmap = Day12.readInputFile();
+        assertEquals(478, Day12.shortestDistance(heightmap, 'a').getAsInt());
+    }
 }

@@ -6,15 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.OptionalInt;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Day12 {
     private static final String INPUT = "2022/Day/12/input";
 
     // the first 4 bits are used to represent active edges
-    // the last 7 bits will be the char itself
-    private static final int flag = (4 * 4) << 7; // 2048
-    private static final int vflag = 1 << 7; // 128
+    // and the last 7 bits will contain the char itself
+    private static final int flag = 1 << 7; // 128
 
     private static final int lmask = 1 << 11;
     private static final int umask = lmask >> 1;
@@ -36,22 +37,35 @@ public class Day12 {
                 .toArray(size -> new int[size][]);
     }
 
-    static int findPosition(int[][] heightmap, int width, int length, char position) {
-        for (int y = 0; y < width; y++) {
-            for (int x = 0; x < length; x++) {
-                if (heightmap[y][x] % vflag == position) {
-                    return y * length + x;
-                }
-            }
-        }
-        throw new RuntimeException("No start point found!");
+    static IntStream findPosition(int[][] heightmap, int width, int length, char position) {
+        return IntStream.range(0, width * length)
+            .filter(i -> heightmap[i / length][i % length] % flag == position);
     }
 
     static int shortestDistance(int[][] heightmap) {
         var width = heightmap.length;
         var length = heightmap[0].length;
+        var distances = calculateDistancesToEnd(heightmap, width, length);
+        var start = findPosition(heightmap, width, length, 'S').findAny().getAsInt();
+        var row = start / length;
+        var col = start % length;
+        assert distances[row][col] >= 26;
+        return distances[row][col];
+    }
 
-        var end = findPosition(heightmap, width, length, 'E');
+    static OptionalInt shortestDistance(int[][] heightmap, char elevation) {
+        var width = heightmap.length;
+        var length = heightmap[0].length;
+        var distances = calculateDistancesToEnd(heightmap, width, length);
+        return findPosition(heightmap, width, length, elevation).map(i -> {
+            var row = i / length;
+            var col = i % length;
+            return distances[row][col];
+        }).filter(distance -> distance > 0).min();
+    }
+
+    private static int[][] calculateDistancesToEnd(int[][] heightmap, int width, int length) {
+        var end = findPosition(heightmap, width, length, 'E').findAny().getAsInt();
         var distances = new int[width][length];
         var queue = new LinkedList<Integer>();
         queue.add(end);
@@ -71,15 +85,11 @@ public class Day12 {
             }
         }
 
-        var start = findPosition(heightmap, width, length, 'S');
-        var row = start / length;
-        var col = start % length;
-        assert distances[row][col] >= 26;
-        return distances[row][col];
+        return distances;
     }
 
-    static char height(int value) {
-        char c = (char) (value % vflag);
+    private static char height(int value) {
+        char c = (char) (value % flag);
         return switch (c) {
             case 'S' -> 'a';
             case 'E' -> 'z';
@@ -87,14 +97,14 @@ public class Day12 {
         };
     }
 
-    static boolean isEdge(int from, int h, int v) {
+    private static boolean isEdge(int from, int h, int v) {
         if (v % flag == 'S' || from % flag == 'E') {
             return false;
         }
         return height(from) >= h - 1;
     }
 
-    static int[] edges(int[][] heightmap, int width, int length, int index) {
+    private static int[] edges(int[][] heightmap, int width, int length, int index) {
         var result = new ArrayList<Integer>(4);
         int row = index / length;
         int col = index % length;
