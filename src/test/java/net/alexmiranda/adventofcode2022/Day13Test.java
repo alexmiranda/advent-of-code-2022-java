@@ -85,9 +85,23 @@ public class Day13Test {
             assertEquals(13, Day13.countPairsInRightOrder(reader));
         }
     }
-
+    
     @Test
     public void testPuzzleInputPart1() throws IOException {
         assertEquals(6072, Day13.countPairsInRightOrder());
+    }
+
+    @Test
+    public void testExamplePart2() throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var result = Day13.decoderKeyOfDistressSignal(reader, Day13.Packet.fromString("[[2]]"), Day13.Packet.fromString("[[6]]"));
+            assertEquals(140, result);
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        var result = Day13.decoderKeyOfDistressSignal(Day13.Packet.fromString("[[2]]"), Day13.Packet.fromString("[[6]]"));
+        assertEquals(22184, result);
     }
 }

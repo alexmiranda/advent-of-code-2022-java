@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
+import java.util.stream.IntStream;
 
 public class Day13 {
     private static final String INPUT = "/2022/Day/13/input";
@@ -195,6 +199,31 @@ public class Day13 {
             }
 
             return counter;
+        }
+    }
+
+    static int decoderKeyOfDistressSignal(Packet... decoderKeys) throws IOException {
+        try (var reader = readInput()) {
+            return decoderKeyOfDistressSignal(reader, decoderKeys);
+        }
+    }
+    
+    static int decoderKeyOfDistressSignal(Reader reader, Packet... decoderKeys) throws IOException {
+        var list = new ArrayList<Packet>(152);
+        Collections.addAll(list, decoderKeys);
+        try (var br = new BufferedReader(reader)) {
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                var packet = Packet.fromString(line);
+                list.add(packet);
+            }
+            Collections.sort(list);
+            return IntStream.range(1, list.size())
+                .filter(i -> Arrays.binarySearch(decoderKeys, list.get(i - 1)) >= 0)
+                .reduce(1, (a, b) -> a * b);
         }
     }
 
