@@ -39,9 +39,18 @@ public class Day15 {
         }
 
         int tryDeployBeacon(int row) {
+            var unfeasible = unfeasibleLocations(row);
+            return unfeasible.size();
+        }
+
+        private HashSet<Integer> unfeasibleLocations(int row) {
             var unfeasible = new HashSet<Integer>();
             for (var sensor : sensors) {
                 var ydist = Math.abs(sensor.y - row);
+                if (ydist > sensor.distClosestBeacon) {
+                    continue;
+                }
+
                 var start = sensor.x - (sensor.distClosestBeacon - ydist);
                 var end = sensor.x + (sensor.distClosestBeacon - ydist);
                 for (int i = start; i <= end; i++) {
@@ -53,7 +62,56 @@ public class Day15 {
                     }
                 }
             }
-            return unfeasible.size();
+            return unfeasible;
+        }
+
+        long findTunningFreq() {
+            int foundX = -1, foundY = -1;
+            sensorsLoop: for (var sensor : sensors) {
+                for (int y = 0; y <= sensor.distClosestBeacon; y++) {
+                    var upperLeftX = sensor.x - sensor.distClosestBeacon - y - 1;
+                    var upperLeftY = sensor.y - y;
+                    if (checkBeaconLocation(upperLeftX, upperLeftY)) {
+                        foundX = upperLeftX;
+                        foundY = upperLeftY;
+                        break sensorsLoop;
+                    }
+                    var upperRightX = sensor.x + sensor.distClosestBeacon - y + 1;
+                    var upperRightY = sensor.y - y;
+                    if (checkBeaconLocation(upperRightX, upperRightY)) {
+                        foundX = upperRightX;
+                        foundY = upperRightY;
+                        break sensorsLoop;
+                    }
+                    var bottomRightX = sensor.x + sensor.distClosestBeacon - y + 1;
+                    var bottomRightY = sensor.y + y;
+                    if (checkBeaconLocation(bottomRightX, bottomRightY)) {
+                        foundX = bottomRightX;
+                        foundY = bottomRightY;
+                        break sensorsLoop;
+                    }
+                    var bottomLeftX = sensor.x - sensor.distClosestBeacon - y - 1;
+                    var bottomLeftY = sensor.y + y;
+                    if (checkBeaconLocation(bottomLeftX, bottomLeftY)) {
+                        foundX = bottomLeftX;
+                        foundY = bottomLeftY;
+                        break sensorsLoop;
+                    }
+                }
+            }
+            return (long) foundX * 4_000_000 + foundY;
+        }
+
+        boolean checkBeaconLocation(int x, int y) {
+            if (x < 0 || y < 0 || x > 4_000_000 || y > 4_000_000) {
+                return false;
+            }
+            for (var sensor : sensors) {
+                if (distance(sensor.x, sensor.y, x, y) <= sensor.distClosestBeacon) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         int distance(int x1, int y1, int x2, int y2) {
@@ -72,6 +130,20 @@ public class Day15 {
             var network = new TunnelNetwork();
             network.parseInput(reader);
             return network.tryDeployBeacon(row);
+        }
+    }
+
+    static long getTunningFrequency(Reader reader) throws IOException {
+        var network = new TunnelNetwork();
+        network.parseInput(reader);
+        return network.findTunningFreq();
+    }
+
+    static long getTunningFrequency() throws IOException {
+        try (var reader = new InputStreamReader(Day15.class.getResourceAsStream(INPUT))) {
+            var network = new TunnelNetwork();
+            network.parseInput(reader);
+            return network.findTunningFreq();
         }
     }
 

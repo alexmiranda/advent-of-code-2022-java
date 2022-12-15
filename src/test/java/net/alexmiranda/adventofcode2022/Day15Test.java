@@ -38,4 +38,18 @@ public class Day15Test {
         var result = Day15.countLocationsUnsuitableForBeacons(2_000_000);
         assertEquals(5367037, result);
     }
+
+    @Test
+    public void testExamplePart2() throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var result = Day15.getTunningFrequency(reader);
+            assertEquals(56000011, result);
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        var result = Day15.getTunningFrequency();
+        assertEquals(11914583249288L, result);
+    }
 }
