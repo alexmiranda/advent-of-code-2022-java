@@ -1,0 +1,25 @@
+strict digraph {
+    AA [ label="AA\nrate=0" ]
+    BB [ label="BB\nrate=13" ]
+    CC [ label="CC\nrate=2" ]
+    DD [ label="DD\nrate=20" ]
+    EE [ label="EE\nrate=3" ]
+    FF [ label="FF\nrate=0" ]
+    GG [ label="GG\nrate=0" ]
+    HH [ label="HH\nrate=22" ]
+    II [ label="II\nrate=0" ]
+    JJ [ label="JJ\nrate=21" ]
+
+    AA -> {DD, II, BB}
+    BB -> {CC, AA}
+    CC -> {DD, BB}
+    DD -> {CC, AA, EE}
+    EE -> {FF, DD}
+    FF -> {EE, GG}
+    GG -> {FF, HH}
+    HH -> GG
+    II -> {AA, JJ}
+    JJ -> II
+
+    {rank=same DD II BB}
+}
