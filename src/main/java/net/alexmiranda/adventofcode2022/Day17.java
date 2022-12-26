@@ -25,12 +25,13 @@ public class Day17 {
         private final String jetPattern;
         private int nextMove = 0, nextShape = 0, space = 0;
         private byte[] contents = new byte[0];
+        private long size = 0;
 
         Chamber(String jetPattern) {
             this.jetPattern = jetPattern;
         }
 
-        int simulate(int counter) {
+        long simulate(long counter) {
             while (counter > 0) {
                 var shape = SHAPES[nextShape];
 
@@ -63,19 +64,33 @@ public class Day17 {
                     System.arraycopy(contents, 0, newContents, grow, contents.length);
                     contents = newContents;
                     depth += grow;
+                    size += grow;
                 }
 
                 // rock's landed
+                int highestFullLayer = -1;
                 for (int i = 0; i < h; i++) {
                     var b = (byte) (shape >> (8 * i));
-                    contents[depth - i - 1] |= b;
+                    var full = (1 << 7) - 1;
+                    int pos = depth - i - 1;
+                    if (((contents[pos] |= b) & full) == full) {
+                        highestFullLayer = pos;
+                    }
                 }
 
+                // compact the whole thing up to the top most full layer of rocks!
+                if (highestFullLayer > 0) {
+                    var newContents = new byte[highestFullLayer];
+                    System.arraycopy(contents, 0, newContents, 0, highestFullLayer);
+                    contents = newContents;
+                }
+
+                // round is done
                 space = 0;
                 nextShape = (++nextShape) % SHAPES.length;
                 counter--;
             }
-            return contents.length;
+            return size;
         }
 
         void print(Writer w) throws IOException {

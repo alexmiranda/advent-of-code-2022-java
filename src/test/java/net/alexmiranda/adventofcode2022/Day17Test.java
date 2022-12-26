@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class Day17Test {
@@ -27,6 +28,24 @@ public class Day17Test {
         var chamber = new Day17.Chamber(input);
         var result = chamber.simulate(2022);
         assertEquals(3059, result);
+    }
+    
+    @Test
+    @Disabled("takes way too long")
+    public void testExamplePart2() {
+        var chamber = new Day17.Chamber(EXAMPLE);
+        var result = chamber.simulate(1_000_000_000_000L);
+        assertEquals(1_514_285_714_288L, result);
+    }
+
+    @Test
+    @Disabled("takes way too long")
+    public void testPuzzleInputPart2() throws IOException, URISyntaxException {
+        var input = Files.readString(Path.of(ClassLoader.getSystemResource(INPUT).toURI()));
+        var chamber = new Day17.Chamber(input);
+        var result = chamber.simulate(1_000_000_000_000L);
+        // FIXME: incomplete...
+        assertEquals(0, result);
     }
 
     @Test
