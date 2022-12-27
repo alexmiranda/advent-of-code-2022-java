@@ -41,6 +41,22 @@ public class Day18Test {
     }
 
     @Test
+    public void testExamplePart2() throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var answer = Day18.part2(reader);
+            assertEquals(58, answer);
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = Day18.puzzleInput()) {
+            var answer = Day18.part2(reader);
+            assertEquals(2518, answer);
+        }
+    }
+
+    @Test
     public void testParse() throws IOException {
         try (var reader = new StringReader(EXAMPLE)) {
             var coords = Day18.parseInput(reader);
