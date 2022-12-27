@@ -19,3 +19,4 @@
 * [Day 15](./src/main/java/net/alexmiranda/adventofcode2022/Day15.java)
 * [Day 16](./src/main/java/net/alexmiranda/adventofcode2022/Day16.java)
 * [Day 17](./src/main/java/net/alexmiranda/adventofcode2022/Day17.java)
+* [Day 18](./src/main/java/net/alexmiranda/adventofcode2022/Day18.java)
