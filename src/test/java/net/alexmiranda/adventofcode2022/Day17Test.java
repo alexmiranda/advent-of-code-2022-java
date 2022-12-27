@@ -28,8 +28,9 @@ public class Day17Test {
         var chamber = new Day17.Chamber(input);
         var result = chamber.simulate(2022);
         assertEquals(3059, result);
+        assertEquals(10091, input.length());
     }
-    
+
     @Test
     @Disabled("takes way too long")
     public void testExamplePart2() {
@@ -39,13 +40,11 @@ public class Day17Test {
     }
 
     @Test
-    @Disabled("takes way too long")
     public void testPuzzleInputPart2() throws IOException, URISyntaxException {
         var input = Files.readString(Path.of(ClassLoader.getSystemResource(INPUT).toURI()));
         var chamber = new Day17.Chamber(input);
         var result = chamber.simulate(1_000_000_000_000L);
-        // FIXME: incomplete...
-        assertEquals(0, result);
+        assertEquals(1500874635587L, result);
     }
 
     @Test
@@ -181,7 +180,7 @@ public class Day17Test {
     @Test
     public void testMoveAndPrintShapes() throws IOException {
         try (var w = new StringWriter()) {
-            Day17.printShape(w, Day17.HORIZONTAL_BAR);
+            Day17.printRock(w, Day17.HORIZONTAL);
             var s = """
                     |..@@@@.|
                     """;
@@ -189,9 +188,9 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.HORIZONTAL_BAR;
-            shape = Day17.moveShape(shape, 0, '<');
-            Day17.printShape(w, shape);
+            var shape = Day17.HORIZONTAL;
+            shape = Day17.moveRock(shape, 0, '<');
+            Day17.printRock(w, shape);
             var s = """
                     |.@@@@..|
                     """;
@@ -199,10 +198,10 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.HORIZONTAL_BAR;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            Day17.printShape(w, shape);
+            var shape = Day17.HORIZONTAL;
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            Day17.printRock(w, shape);
             var s = """
                     |@@@@...|
                     """;
@@ -210,11 +209,11 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.HORIZONTAL_BAR;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.HORIZONTAL;
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |@@@@...|
                     """;
@@ -222,9 +221,9 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.HORIZONTAL_BAR;
-            shape = Day17.moveShape(shape, 0, '>');
-            Day17.printShape(w, shape);
+            var shape = Day17.HORIZONTAL;
+            shape = Day17.moveRock(shape, 0, '>');
+            Day17.printRock(w, shape);
             var s = """
                     |...@@@@|
                     """;
@@ -232,10 +231,10 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.HORIZONTAL_BAR;
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.HORIZONTAL;
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |...@@@@|
                     """;
@@ -243,7 +242,7 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            Day17.printShape(w, Day17.CROSS);
+            Day17.printRock(w, Day17.CROSS);
             var s = """
                     |...@...|
                     |..@@@..|
@@ -254,10 +253,10 @@ public class Day17Test {
 
         try (var w = new StringWriter()) {
             var shape = Day17.CROSS;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<'); // noop
-            Day17.printShape(w, shape);
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |.@.....|
                     |@@@....|
@@ -268,10 +267,10 @@ public class Day17Test {
 
         try (var w = new StringWriter()) {
             var shape = Day17.CROSS;
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>'); // noop
-            Day17.printShape(w, shape);
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |.....@.|
                     |....@@@|
@@ -281,7 +280,7 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            Day17.printShape(w, Day17.L_REVERSED);
+            Day17.printRock(w, Day17.LSHAPE);
             var s = """
                     |....@..|
                     |....@..|
@@ -291,11 +290,11 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.L_REVERSED;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.LSHAPE;
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |..@....|
                     |..@....|
@@ -305,11 +304,11 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.L_REVERSED;
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.LSHAPE;
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |......@|
                     |......@|
@@ -319,7 +318,7 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            Day17.printShape(w, Day17.VERTICAL_BAR);
+            Day17.printRock(w, Day17.VERTICAL);
             var s = """
                     |..@....|
                     |..@....|
@@ -330,11 +329,11 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.VERTICAL_BAR;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.VERTICAL;
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |@......|
                     |@......|
@@ -345,12 +344,12 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            var shape = Day17.VERTICAL_BAR;
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>'); // noop
-            Day17.printShape(w, shape);
+            var shape = Day17.VERTICAL;
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |......@|
                     |......@|
@@ -361,7 +360,7 @@ public class Day17Test {
         }
 
         try (var w = new StringWriter()) {
-            Day17.printShape(w, Day17.SQUARE);
+            Day17.printRock(w, Day17.SQUARE);
             var s = """
                     |..@@...|
                     |..@@...|
@@ -371,10 +370,10 @@ public class Day17Test {
 
         try (var w = new StringWriter()) {
             var shape = Day17.SQUARE;
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<');
-            shape = Day17.moveShape(shape, 0, '<'); // noop
-            Day17.printShape(w, shape);
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<');
+            shape = Day17.moveRock(shape, 0, '<'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |@@.....|
                     |@@.....|
@@ -384,11 +383,11 @@ public class Day17Test {
 
         try (var w = new StringWriter()) {
             var shape = Day17.SQUARE;
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>');
-            shape = Day17.moveShape(shape, 0, '>'); // noop
-            Day17.printShape(w, shape);
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>');
+            shape = Day17.moveRock(shape, 0, '>'); // noop
+            Day17.printRock(w, shape);
             var s = """
                     |.....@@|
                     |.....@@|
@@ -399,10 +398,10 @@ public class Day17Test {
 
     @Test
     public void testShapeHeight() {
-        assertEquals(1, Day17.height(Day17.HORIZONTAL_BAR));
+        assertEquals(1, Day17.height(Day17.HORIZONTAL));
         assertEquals(3, Day17.height(Day17.CROSS));
-        assertEquals(3, Day17.height(Day17.L_REVERSED));
+        assertEquals(3, Day17.height(Day17.LSHAPE));
         assertEquals(2, Day17.height(Day17.SQUARE));
-        assertEquals(4, Day17.height(Day17.VERTICAL_BAR));
+        assertEquals(4, Day17.height(Day17.VERTICAL));
     }
 }

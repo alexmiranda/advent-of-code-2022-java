@@ -2,67 +2,103 @@ package net.alexmiranda.adventofcode2022;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class Day17 {
-    private static final int LEFT = 0b01000000_01000000_01000000_01000000;
+    // @formatter:off
+    private static final int LEFT  = 0b01000000_01000000_01000000_01000000;
     private static final int RIGHT = 0b00000001_00000001_00000001_00000001;
 
-    static final int HORIZONTAL_BAR = 0b0_0011110;
-    static final int CROSS = 0b0_0001000_0_0011100_0_0001000;
-    static final int L_REVERSED = 0b0_0000100_0_0000100_0_0011100;
-    static final int VERTICAL_BAR = 0b0_0010000_0_0010000_0_0010000_0_0010000;
-    static final int SQUARE = 0b0_0011000_0_0011000;
+    static final int HORIZONTAL = 0b0_0000000_0_0000000_0_0000000_0_0011110;
+    static final int CROSS      = 0b0_0000000_0_0001000_0_0011100_0_0001000;
+    static final int LSHAPE     = 0b0_0000000_0_0000100_0_0000100_0_0011100;
+    static final int VERTICAL   = 0b0_0010000_0_0010000_0_0010000_0_0010000;
+    static final int SQUARE     = 0b0_0000000_0_0000000_0_0011000_0_0011000;
+    // @formatter:on
 
-    static final int[] SHAPES = new int[] {
-            HORIZONTAL_BAR,
+    static final int[] ROCKS = new int[] {
+            HORIZONTAL,
             CROSS,
-            L_REVERSED,
-            VERTICAL_BAR,
+            LSHAPE,
+            VERTICAL,
             SQUARE,
     };
 
     static class Chamber {
         private final String jetPattern;
-        private int nextMove = 0, nextShape = 0, space = 0;
-        private byte[] contents = new byte[0];
+        private int nextMove = 0, nextRock = 0, space = 0;
+        private byte[] rockpile = new byte[0];
         private long size = 0;
 
         Chamber(String jetPattern) {
             this.jetPattern = jetPattern;
         }
 
-        long simulate(long counter) {
-            while (counter > 0) {
-                var shape = SHAPES[nextShape];
+        long simulate(long n) {
+            record CacheKey(int nextMove, int nextRock, int hash) {
+            }
 
+            record Cycle(long n, long size, int moves, byte[] rockPile) {
+            }
+
+            var cache = new HashMap<CacheKey, Cycle>();
+            while (n > 0) {
+                // have we seen this before? if so, we will advance forward quickly
+                // by restoring the state from the cache...
+                var cacheKey = new CacheKey(nextMove, nextRock, Arrays.hashCode(rockpile));
+                var cycle = cache.get(cacheKey);
+                if (cycle != null) {
+                    long cycleSize = cycle.n - n;
+                    assert (nextRock + cycleSize) % ROCKS.length == nextRock;
+
+                    long delta = size - cycle.size + 1;
+                    long repeat = n / cycleSize;
+                    if (repeat > 0) {
+                        size += delta * repeat;
+                        rockpile = cycle.rockPile;
+                        n %= repeat * cycleSize;
+
+                        space = 0;
+                        nextRock = (++nextRock) % ROCKS.length;
+                        nextMove = (nextMove + cycle.moves) % jetPattern.length();
+                        cache.clear();
+                        continue;
+                    }
+                }
+
+                var rock = ROCKS[nextRock];
+                int moves = 0;
                 // move 3 times freely in empty space
                 for (int i = 0; i < 3; i++) {
-                    shape = move(shape, 0);
+                    rock = move(rock, 0);
                     nextMove = (++nextMove) % jetPattern.length();
+                    moves++;
                 }
 
                 int depth = -1;
-                while ((space & shape) == 0) {
+                while ((space & rock) == 0) {
                     // try to move, but take into account the settled rocks
-                    shape = move(shape, space);
+                    rock = move(rock, space);
                     nextMove = (++nextMove) % jetPattern.length();
-                    
+                    moves++;
+
                     // reached the bottom of the chamber
-                    if (++depth == contents.length) {
+                    if (++depth == rockpile.length) {
                         break;
                     }
 
-                    // fill out the space as we go deep into the chamber contents
-                    space = (space << 8) + contents[depth];
+                    // fill out the space as we go deeper in the chamber contents
+                    space = (space << 8) + rockpile[depth];
                 }
 
                 // grow the contents array as necessary
-                int h = height(shape);
+                int h = height(rock);
                 var grow = h - depth;
                 if (grow > 0) {
-                    var newContents = new byte[contents.length + grow];
-                    System.arraycopy(contents, 0, newContents, grow, contents.length);
-                    contents = newContents;
+                    var newContents = new byte[rockpile.length + grow];
+                    System.arraycopy(rockpile, 0, newContents, grow, rockpile.length);
+                    rockpile = newContents;
                     depth += grow;
                     size += grow;
                 }
@@ -70,56 +106,61 @@ public class Day17 {
                 // rock's landed
                 int highestFullLayer = -1;
                 for (int i = 0; i < h; i++) {
-                    var b = (byte) (shape >> (8 * i));
+                    var b = (byte) (rock >> (8 * i));
                     var full = (1 << 7) - 1;
                     int pos = depth - i - 1;
-                    if (((contents[pos] |= b) & full) == full) {
+                    if (((rockpile[pos] |= b) & full) == full) {
                         highestFullLayer = pos;
                     }
                 }
 
-                // compact the whole thing up to the top most full layer of rocks!
+                // compact the whole thing up to the topmost full layer of rocks!
                 if (highestFullLayer > 0) {
                     var newContents = new byte[highestFullLayer];
-                    System.arraycopy(contents, 0, newContents, 0, highestFullLayer);
-                    contents = newContents;
+                    System.arraycopy(rockpile, 0, newContents, 0, highestFullLayer);
+                    rockpile = newContents;
+
+                    // store a copy of the rockpile so that it can be restored later, if a cycle is
+                    // found
+                    cache.put(cacheKey, new Cycle(n, size, moves, Arrays.copyOf(rockpile, rockpile.length)));
                 }
 
                 // round is done
+                moves = 0;
                 space = 0;
-                nextShape = (++nextShape) % SHAPES.length;
-                counter--;
+                nextRock = (++nextRock) % ROCKS.length;
+                n--;
             }
             return size;
         }
 
         void print(Writer w) throws IOException {
-            var shape = SHAPES[nextShape];
-            printShape(w, shape);
+            var shape = ROCKS[nextRock];
+            printRock(w, shape);
             printEmptySpace(w);
-            printContents(w, contents);
+            printPile(w, rockpile);
             printFloor(w);
         }
 
         int move(int shape, int space) {
             var dir = jetPattern.charAt(nextMove);
-            return moveShape(shape, space, dir);
+            return moveRock(shape, space, dir);
         }
     }
 
-    static int moveShape(int shape, int space, char dir) {
+    static int moveRock(int rock, int space, char dir) {
         switch (dir) {
             case '<' -> {
-                if (((LEFT | space) & shape) == 0) {
-                    var res = shape << 1;
+                if (((LEFT | space) & rock) == 0) {
+                    var res = rock << 1;
                     if ((space & res) == 0) {
                         return res;
                     }
                 }
             }
             case '>' -> {
-                if (((RIGHT | space) & shape) == 0) {
-                    var res = shape >> 1;
+                if (((RIGHT | space) & rock) == 0) {
+                    var res = rock >> 1;
                     if ((space & res) == 0) {
                         return res;
                     }
@@ -127,20 +168,20 @@ public class Day17 {
             }
             default -> throw new RuntimeException("Direction " + dir + " is not supposed to exist!");
         }
-        return shape;
+        return rock;
     }
 
-    static int height(int shape) {
+    static int height(int rock) {
         for (int i = 4; i >= 1; i--) {
             var boundary = 1 << (8 * (i - 1));
-            if (shape >= boundary) {
+            if (rock >= boundary) {
                 return i;
             }
         }
         return 0;
     }
 
-    static void printShape(Writer w, int shape) throws IOException {
+    static void printRock(Writer w, int shape) throws IOException {
         var h = height(shape);
         var s = String.format("%" + (8 * h) + "s", Integer.toBinaryString(shape))
                 .replace('1', '@')
@@ -157,7 +198,7 @@ public class Day17 {
         }
     }
 
-    static void printContents(Writer w, byte[] contents) throws IOException {
+    static void printPile(Writer w, byte[] contents) throws IOException {
         for (int i = 0; i < contents.length; i++) {
             var s = String.format("%7s", Integer.toBinaryString(contents[i]))
                     .replace('1', '#')
