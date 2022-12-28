@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class Day19Test {
     private static final String EXAMPLE = """
@@ -34,13 +36,29 @@ public class Day19Test {
     }
 
     @Test
-    public void testDetailedExamplePart1() throws IOException {
-        var detailedExample = EXAMPLE.substring(0, EXAMPLE.indexOf("\n"));
-        try (var reader = new StringReader(detailedExample)) {
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = Day19.puzzleInput()) {
+            var factory = new Day19.Factory();
+            factory.readBlueprints(reader, 3);
+            var result = factory.multiplyMaximumOpenGeodes(32);
+            assertEquals(27720, result);
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(textBlock = """
+            1,24,9
+            2,24,12
+            1,32,56
+            2,32,62
+            """)
+    public void testDetailedExample(int id, int minutes, int expectedResult) throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
             var factory = new Day19.Factory();
             factory.readBlueprints(reader);
-            var result = factory.determineQualityLevel(24);
-            assertEquals(9, result);
+            var blueprint = factory.blueprints.stream().filter(p -> p.id() == id).findFirst().get();
+            var openGeodes = factory.maximumOpenGeodes(blueprint, minutes);
+            assertEquals(expectedResult, openGeodes);
         }
     }
 }
