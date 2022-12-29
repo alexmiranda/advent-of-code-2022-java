@@ -29,18 +29,45 @@ public class Day21Test {
     @Test
     public void testExamplePart1() throws IOException {
         try (var reader = new StringReader(EXAMPLE)) {
-            var ctx = new Day21.Context(reader);
+            var ctx = new Day21.Context(reader, false);
             var answer = ctx.solve("root");
-            assertEquals("152", answer);
+            assertEquals(152, answer.intValue());
         }
     }
 
     @Test
     public void testPuzzleInputPart1() throws IOException {
         try (var reader = Day21.puzzleInput()) {
-            var ctx = new Day21.Context(reader);
+            var ctx = new Day21.Context(reader, false);
             var answer = ctx.solve("root");
-            assertEquals("282285213953670", answer);
+            assertEquals(282285213953670L, answer.longValue());
+        }
+    }
+
+    @Test
+    public void testExamplePart2() throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var ctx = new Day21.Context(reader, true);
+            var answer = ctx.solvePart2("humn");
+            assertEquals(301, answer.intValue());
+        }
+    }
+
+    @Test
+    public void testExamplePart2CleverWay() throws IOException {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var ctx = new Day21.Context(reader, true);
+            var answer = ctx.solvePart2("humn");
+            assertEquals(301, answer.intValue());
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = Day21.puzzleInput()) {
+            var ctx = new Day21.Context(reader, true);
+            var answer = ctx.solvePart2("humn");
+            assertEquals(3699945358564L, answer.longValue());
         }
     }
 }

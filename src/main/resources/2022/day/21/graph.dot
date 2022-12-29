@@ -1,0 +1,94 @@
+strict digraph {
+    // root: pppw + sjmn
+    // dbpl: 5
+    // cczh: sllz + lgvd
+    // zczc: 2
+    // ptdq: humn - dvpt
+    // dvpt: 3
+    // lfqf: 4
+    // humn: 5
+    // ljgn: 2
+    // sjmn: drzm * dbpl
+    // sllz: 4
+    // pppw: cczh / lfqf
+    // lgvd: ljgn * ptdq
+    // drzm: hmdt - zczc
+    // hmdt: 32
+
+    node [shape=box]
+
+    subgraph {
+        op1 [label="+" shape=circle]
+        root -> op1 -> {pppw sjmn}
+    }
+    
+    subgraph {
+        op2 [label="/" shape=circle]
+        pppw -> op2 -> {cczh lfqf}
+    }
+
+    subgraph {
+        op3 [label="*" shape=circle]
+        sjmn -> op3 -> {drzm dbpl}
+    }
+
+    subgraph {
+        op4 [label="+" shape=circle]
+        cczh -> op4 -> {sllz lgvd}
+    }
+
+    subgraph {
+        num1 [label="4" shape=doublecircle]
+        lfqf -> num1
+    }
+
+    subgraph {
+        op5 [label="-" shape=circle]
+        drzm -> op5 -> {hmdt zczc}
+    }
+
+    subgraph {
+        num2 [label="32" shape=doublecircle]
+        hmdt -> num2
+    }
+
+    subgraph {
+        num3 [label="5" shape=doublecircle]
+        dbpl -> num3
+    }
+
+    subgraph {
+        num4 [label="4" shape=doublecircle]
+        sllz -> num4
+    }
+
+    subgraph {
+        op6 [label="*" shape=circle]
+        lgvd -> op6 -> {ljgn ptdq}
+    }
+
+    subgraph {
+        num5 [label="2" shape=doublecircle]
+        zczc -> num5
+    }
+
+    subgraph {
+        num6 [label="2" shape=doublecircle]
+        ljgn -> num6
+    }
+
+    subgraph {
+        op7 [label="-" shape=circle]
+        ptdq -> op7 -> {humn dvpt}
+    }
+
+    subgraph {
+        x [label=<&chi;>shape=triangle]
+        humn -> x
+    }
+
+    subgraph {
+        num7 [label="3" shape=doublecircle]
+        dvpt -> num7
+    }
+}
