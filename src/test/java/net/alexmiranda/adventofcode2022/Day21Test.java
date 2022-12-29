@@ -31,7 +31,7 @@ public class Day21Test {
         try (var reader = new StringReader(EXAMPLE)) {
             var ctx = new Day21.Context(reader, false);
             var answer = ctx.solve("root");
-            assertEquals("152", answer);
+            assertEquals(152L, answer);
         }
     }
 
@@ -40,7 +40,7 @@ public class Day21Test {
         try (var reader = Day21.puzzleInput()) {
             var ctx = new Day21.Context(reader, false);
             var answer = ctx.solve("root");
-            assertEquals("282285213953670", answer);
+            assertEquals(282285213953670L, answer);
         }
     }
 
@@ -49,7 +49,7 @@ public class Day21Test {
         try (var reader = new StringReader(EXAMPLE)) {
             var ctx = new Day21.Context(reader, true);
             var answer = ctx.solvePart2("humn");
-            assertEquals("301", answer);
+            assertEquals(301L, answer);
         }
     }
 
@@ -58,7 +58,7 @@ public class Day21Test {
         try (var reader = new StringReader(EXAMPLE)) {
             var ctx = new Day21.Context(reader, true, true);
             var answer = ctx.solvePart2CleverWay("humn");
-            assertEquals("301", answer);
+            assertEquals(301L, answer);
         }
     }
 
@@ -67,7 +67,7 @@ public class Day21Test {
         try (var reader = Day21.puzzleInput()) {
             var ctx = new Day21.Context(reader, true, true);
             var answer = ctx.solvePart2CleverWay("humn");
-            assertEquals("9924089552874", answer);
+            assertEquals(3699945358564L, answer);
         }
     }
 }

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -14,9 +13,9 @@ public class Day21 {
     private static final String INPUT = "/2022/day/21/input";
 
     interface Job {
-        BigDecimal shout(Context ctx, boolean withCache);
+        long shout(Context ctx, boolean withCache);
 
-        default BigDecimal shout(Context ctx) {
+        default long shout(Context ctx) {
             return this.shout(ctx, true);
         }
 
@@ -32,14 +31,14 @@ public class Day21 {
     }
 
     static final class NumberJob implements Job {
-        private final BigDecimal number;
+        private final long number;
 
         NumberJob(int number) {
-            this.number = BigDecimal.valueOf(number);
+            this.number = number;
         }
 
         @Override
-        public BigDecimal shout(Context ctx, boolean withCache) {
+        public long shout(Context ctx, boolean withCache) {
             return number;
         }
     }
@@ -47,7 +46,7 @@ public class Day21 {
     static final class MathJob implements Job {
         private final String left, right;
         private final char operator;
-        private BigDecimal answer = null;
+        private Long answer = null;
 
         MathJob(String left, String right, char operator) {
             this.left = left;
@@ -56,43 +55,43 @@ public class Day21 {
         }
 
         @Override
-        public BigDecimal shout(Context ctx, boolean withCache) {
+        public long shout(Context ctx, boolean withCache) {
             if (answer == null || !withCache) {
                 answer = solve(ctx, withCache);
             }
             return answer;
         }
 
-        private BigDecimal solve(Context ctx, boolean withCache) {
+        private long solve(Context ctx, boolean withCache) {
             var lhs = ctx.monkeyJobs.get(left).shout(ctx, withCache);
             var rhs = ctx.monkeyJobs.get(right).shout(ctx, withCache);
             return switch (operator) {
-                case '+' -> lhs.add(rhs);
-                case '-' -> lhs.subtract(rhs);
-                case '*' -> lhs.multiply(rhs);
-                case '/' -> lhs.divide(rhs);
+                case '+' -> lhs + rhs;
+                case '-' -> lhs - rhs;
+                case '*' -> lhs * rhs;
+                case '/' -> lhs / rhs;
                 default -> invalidOperator();
             };
         }
 
         // invert is basically solving the tiniest of equations by computing the reverse
         // math operation over the constant side and leaving out the variable...
-        BigDecimal invert(Context ctx, boolean leftSide, BigDecimal target) {
+        long invert(Context ctx, boolean leftSide, long target) {
             var constant = computeOperand(ctx, !leftSide);
             return switch (operator) {
-                case '+' -> target.subtract(constant);
-                case '-' -> target.add(constant);
-                case '*' -> target.divide(constant);
-                case '/' -> target.multiply(constant);
+                case '+' -> target - constant;
+                case '*' -> target / constant;
+                case '-' -> leftSide ? constant + target : constant - target;
+                case '/' -> leftSide ? constant * target : constant / target;
                 default -> invalidOperator();
             };
         }
 
-        private BigDecimal invalidOperator() {
+        private long invalidOperator() {
             throw new IllegalStateException("Invalid operator: " + operator);
         }
 
-        BigDecimal computeOperand(Context ctx, boolean leftSide) {
+        long computeOperand(Context ctx, boolean leftSide) {
             return (leftSide ? ctx.monkeyJobs.get(left) : ctx.monkeyJobs.get(right)).shout(ctx);
         }
     }
@@ -102,18 +101,17 @@ public class Day21 {
         boolean detectedBranch = false;
 
         @Override
-        public BigDecimal shout(Context ctx, boolean withCache) {
+        public long shout(Context ctx, boolean withCache) {
             if (!detectedBranch) {
-                // this will cause a NumberFormatException
-                return BigDecimal.valueOf(Double.NaN);
+                throw new NumberFormatException("intentional");
             }
-            return BigDecimal.valueOf(i++);
+            return i++;
         }
     }
 
     static final class HumanJob implements Job {
         @Override
-        public BigDecimal shout(Context ctx, boolean withCache) throws NumberFormatException {
+        public long shout(Context ctx, boolean withCache) {
             record Trail(MathJob job, boolean leftSide) {
             }
 
@@ -147,7 +145,7 @@ public class Day21 {
             var step = trail.pop();
 
             // first we need to compute the constant side of the root node
-            BigDecimal target = step.job.computeOperand(ctx, !step.leftSide);
+            var target = step.job.computeOperand(ctx, !step.leftSide);
 
             // now one step at a time we compute the inverse of the operation on each node
             while (!trail.isEmpty()) {
@@ -190,15 +188,15 @@ public class Day21 {
             }
         }
 
-        String solve(String monkey) {
-            return monkeyJobs.get(monkey).shout(this).toString();
+        long solve(String monkey) {
+            return monkeyJobs.get(monkey).shout(this);
         }
 
-        String solvePart2(String monkey) {
+        long solvePart2(String monkey) {
             var root = (MathJob) monkeyJobs.get("root");
             var humn = (StupidHuman) monkeyJobs.get(monkey);
 
-            BigDecimal constant = null;
+            long constant = 0L;
             Job variable = null;
             try {
                 constant = monkeyJobs.get(root.left).shout(this);
@@ -212,8 +210,8 @@ public class Day21 {
             while (true) {
                 try {
                     var result = variable.shout(this, false);
-                    if (result.equals(constant)) {
-                        return Long.toString(humn.i - 1);
+                    if (result == constant) {
+                        return humn.i - 1;
                     }
                 } catch (Exception e) {
                     // we gotta be persistent!
@@ -221,10 +219,10 @@ public class Day21 {
             }
         }
 
-        String solvePart2CleverWay(String monkey) {
+        long solvePart2CleverWay(String monkey) {
             var humn = (HumanJob) monkeyJobs.get(monkey);
             var result = humn.shout(this);
-            return Long.toString(result.longValue());
+            return result;
         }
     }
 
