@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class Day23Test {
@@ -37,10 +38,27 @@ public class Day23Test {
     }
 
     @Test
-    public void testExamplePart2() throws IOException {
+    public void testPuzzleInputPart1() throws IOException {
         try (var reader = Day23.puzzleInput()) {
             var grove = new Day23.Grove(reader);
             assertEquals(3940, grove.countEmptyTiles(10));
+        }
+    }
+
+    @Test
+    public void testExamplePart2() {
+        try (var reader = new StringReader(EXAMPLE)) {
+            var grove = new Day23.Grove(reader);
+            assertEquals(20, grove.roundsUntilNoElfMoves());
+        }
+    }
+
+    @Test
+    @Disabled("too slow")
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = Day23.puzzleInput()) {
+            var grove = new Day23.Grove(reader);
+            assertEquals(990, grove.roundsUntilNoElfMoves());
         }
     }
 

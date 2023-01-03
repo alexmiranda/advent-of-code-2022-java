@@ -90,6 +90,9 @@ public class Day23 {
         private final List<Elf> elves = new ArrayList<>();
         private int nextFirstRule = 0;
 
+        record Result(boolean moved, int emptyTilesCount) {
+        }
+
         Grove(Readable input) {
             try (var scanner = new Scanner(input)) {
                 scanner.useDelimiter("");
@@ -112,13 +115,24 @@ public class Day23 {
         int countEmptyTiles(int n) {
             int result = 0;
             for (int i = 0; i < n; i++) {
-                result = simulate(nextFirstRule);
+                result = simulate(nextFirstRule).emptyTilesCount;
                 nextFirstRule = (nextFirstRule + 1) % RULES.length;
             }
             return result;
         }
 
-        int simulate(int firstRule) {
+        int roundsUntilNoElfMoves() {
+            int counter = 1;
+            var result = simulate(nextFirstRule);
+            while (result.moved) {
+                nextFirstRule = (nextFirstRule + 1) % RULES.length;
+                result = simulate(nextFirstRule);
+                counter++;
+            }
+            return counter;
+        }
+
+        Result simulate(int firstRule) {
             var proposals = new HashMap<Location, List<Elf>>(elves.size(), .9f);
             for (var elf : elves) {
                 elf.propose(elves, firstRule).ifPresent(loc -> {
@@ -133,6 +147,7 @@ public class Day23 {
                 ;
             }
 
+            var moved = false;
             for (var entry : proposals.entrySet()) {
                 if (entry.getValue().size() > 1) {
                     continue;
@@ -140,6 +155,7 @@ public class Day23 {
                 var elf = entry.getValue().get(0);
                 var loc = entry.getKey();
                 elf.move(loc);
+                moved = true;
             }
 
             int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE;
@@ -153,7 +169,7 @@ public class Day23 {
 
             var w = maxX - minX + 1;
             var h = maxY - minY + 1;
-            return w * h - elves.size();
+            return new Result(moved, w * h - elves.size());
         }
 
         void print(Writer w) throws IOException {
