@@ -45,19 +45,6 @@ public class Day24Test {
             var valley = new Day24.Valley(reader);
             var result = valley.shortestTime();
             assertEquals(18, result);
-
-            var expectedString = """
-                    #.######
-                    #>2.<.<#
-                    #.2v^2<#
-                    #>..>2>#
-                    #<....>#
-                    ######.#
-                    """;
-
-            var w = new StringWriter();
-            valley.print(w);
-            assertEquals(expectedString, w.toString());
         }
     }
 
@@ -71,12 +58,71 @@ public class Day24Test {
     }
 
     @Test
+    public void testSimpleExamplePart2() {
+        try (var reader = new StringReader(SIMPLE_EXAMPLE)) {
+            var valley = new Day24.Valley(reader);
+            assertEquals(30, valley.shortestTimeRounds(3));
+        }
+    }
+
+    @Test
+    public void testComplexExamplePart2() {
+        try (var reader = new StringReader(COMPLEX_EXAMPLE)) {
+            var valley = new Day24.Valley(reader);
+            var timeElapsed = 0;
+
+            // assertEquals(54, valley.shortestTimeRounds(3));
+
+            // reach the goal
+            var minutes = valley.shortestTime(timeElapsed, valley.startPos, valley.finishPos);
+            assertEquals(18, minutes);
+            timeElapsed += minutes;
+
+            // go back to start
+            minutes = valley.shortestTime(timeElapsed, valley.finishPos, valley.startPos);
+            assertEquals(23, minutes);
+            timeElapsed += minutes;
+
+            // and reach the goal again...
+            minutes = valley.shortestTime(timeElapsed, valley.startPos, valley.finishPos);
+            assertEquals(13, minutes);
+            timeElapsed += minutes;
+
+            assertEquals(54, timeElapsed);
+        }
+    }
+
+    @Test
+    public void testPuzzleInputPart2() throws IOException {
+        try (var reader = Day24.puzzleInput()) {
+            var valley = new Day24.Valley(reader);
+            var timeElapsed = 0;
+            timeElapsed += valley.shortestTime(timeElapsed, valley.startPos, valley.finishPos);
+            timeElapsed += valley.shortestTime(timeElapsed, valley.finishPos, valley.startPos);
+            timeElapsed += valley.shortestTime(timeElapsed, valley.startPos, valley.finishPos);
+            assertEquals(960, timeElapsed);
+        }
+    }
+
+    @Test
     public void testPuzzleInputMoveBlizzards() throws IOException {
         try (var reader = Day24.puzzleInput()) {
             var valley = new Day24.Valley(reader);
+            var data = valley.data();
+            var width = valley.width();
+            
+            // before
+            var w1 = new StringWriter();
+            Day24.Valley.print(w1, data, width);
+
             for (int i = 0; i < 300; i++) {
-                valley.moveBlizzards();
+                data = valley.moveBlizzards(data);
             }
+
+            // after
+            var w2 = new StringWriter();
+            Day24.Valley.print(w2, data, width);
+            assertEquals(w1.toString(), w2.toString());
         }
     }
 
@@ -106,11 +152,13 @@ public class Day24Test {
     public void testMoveBlizzards() throws IOException {
         try (var reader = new StringReader(COMPLEX_EXAMPLE)) {
             var valley = new Day24.Valley(reader);
+            var data = valley.data();
+            var width = valley.width();
             var w = new StringWriter();
 
             for (int i = 0; i < 18; i++) {
-                valley.moveBlizzards();
-                valley.print(w);
+                data = valley.moveBlizzards(data);
+                Day24.Valley.print(w, data, width);
                 w.write('\n');
             }
 
